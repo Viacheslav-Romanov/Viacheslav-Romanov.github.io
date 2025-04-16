@@ -19,7 +19,7 @@
             box-shadow: 0 0 20px rgba(0,0,0,0.3);
             z-index: 1000;
             min-width: 300px;
-            text-align: center;
+            text-align: left;
         }
         #popup h2 {
             color: #333;
@@ -43,6 +43,10 @@
             transform: translate(-50%, -50%);
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             white-space: nowrap;
+        }
+        /* Add fish hook cursor */
+        .fish-hook-cursor {
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M16,4 L16,16 C16,20 12,20 12,16' fill='none' stroke='%23000' stroke-width='3'/%3E%3C/svg%3E") 16 16, auto;
         }
     </style>
     <script type="importmap">
@@ -84,10 +88,10 @@
                 content: `<h2>Professional Certifications</h2>
                     <ul>
                         <li>AWS Certified Machine Learning – Specialty (Valid until Jan 2024)</li>
-                        <li>Amazon Web Services Solutions Architect - Professional (Valid until Dec 2023)</li>
+                        <li>AWS Certified Solutions Architect - Professional (Valid until Dec 2023)</li>
                         <li>AWS Certified Solutions Architect – Associate (Valid until Aug 2023)</li>
-                        <li>Flutter & Firebase: Build a Complete App for iOS & Android (Udemy)</li>
-                        <li>Flutter - Advanced Course (Udemy)</li>
+                        <li>AWS Certified DevOps Engineer – Professional</li>
+                        <li>AWS Certified Developer - Associate</li>
                         <li>Kubernetes in the Google Cloud (Qwiklabs)</li>
                     </ul>`
             }
@@ -146,6 +150,16 @@
 
         // Create texture loader
         const textureLoader = new THREE.TextureLoader();
+        const cubeTextureLoader = new THREE.CubeTextureLoader();
+        const envMap = cubeTextureLoader.load([
+            'https://threejs.org/examples/textures/cube/Park3Med/px.jpg',
+            'https://threejs.org/examples/textures/cube/Park3Med/nx.jpg',
+            'https://threejs.org/examples/textures/cube/Park3Med/py.jpg',
+            'https://threejs.org/examples/textures/cube/Park3Med/ny.jpg',
+            'https://threejs.org/examples/textures/cube/Park3Med/pz.jpg',
+            'https://threejs.org/examples/textures/cube/Park3Med/nz.jpg'
+        ]);
+
         const waterNormals = textureLoader.load('https://threejs.org/examples/textures/water/Water_1_M_Normal.jpg');
         waterNormals.wrapS = waterNormals.wrapT = THREE.RepeatWrapping;
 
@@ -306,17 +320,49 @@
         sandRipples.position.y = -14.8;
         scene.add(sandRipples);
 
-        // Add bubbles
-        const bubbleGeometry = new THREE.SphereGeometry(0.1, 8, 8);
-        const bubbleMaterial = new THREE.MeshPhongMaterial({
-            color: 0xaaccff,  // Light blue tint
+        // Add bubbles with refraction
+        const bubbleGeometry = new THREE.SphereGeometry(0.1, 32, 32);
+        const bubbleMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0xffffff,
             transparent: true,
             opacity: 0.3,
-            shininess: 100
+            metalness: 0.1,
+            roughness: 0.1,
+            transmission: 0.9,
+            thickness: 0.5,
+            envMap: envMap,
+            envMapIntensity: 1.0,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.1,
+            ior: 1.33  // Water's index of refraction
         });
 
+        // Create audio context and stereo panner
+        let audioContext;
+        let bubbleSoundBuffer;
+        let bubbleGain;
+        let bubblePanner;
+        let isAudioInitialized = false;
+
+        function initializeAudio() {
+            if (!isAudioInitialized) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                bubbleSoundBuffer = audioContext.createBuffer(1, 1, 22050);
+                bubbleGain = audioContext.createGain();
+                bubblePanner = audioContext.createStereoPanner();
+                
+                bubbleGain.gain.value = 0.1; // Lower volume
+                bubblePanner.pan.value = 0;
+                
+                bubbleGain.connect(bubblePanner);
+                bubblePanner.connect(audioContext.destination);
+                
+                isAudioInitialized = true;
+            }
+        }
+
         const bubbles = [];
-        for (let i = 0; i < 50; i++) {  // Reduced number of bubbles
+        for (let i = 0; i < 150; i++) {  // Reduced number of bubbles
             const bubble = new THREE.Mesh(bubbleGeometry, bubbleMaterial);
             bubble.position.set(
                 Math.random() * 100 - 50,
@@ -325,11 +371,43 @@
             );
             bubble.userData = {
                 speed: Math.random() * 0.02 + 0.01,
-                offset: Math.random() * Math.PI * 2
+                offset: Math.random() * Math.PI * 2,
+                lastSoundTime: 0
             };
             scene.add(bubble);
             bubbles.push(bubble);
         }
+
+        // Function to play bubble sound with stereo effect
+        function playBubbleSound(bubble) {
+            if (!isAudioInitialized) return;
+            
+            const now = performance.now();
+            if (now - bubble.userData.lastSoundTime > 1000) { // Play sound every second
+                bubble.userData.lastSoundTime = now;
+                
+                // Calculate stereo pan based on bubble's x position
+                // Clamp the value between -1 and 1
+                const panValue = Math.max(-1, Math.min(1, (bubble.position.x + 50) / 100 * 2 - 1));
+                bubblePanner.pan.value = panValue;
+                
+                // Create and play the sound
+                const source = audioContext.createBufferSource();
+                source.buffer = bubbleSoundBuffer;
+                source.connect(bubbleGain);
+                source.start();
+                
+                // Clean up after sound finishes
+                source.onended = () => {
+                    source.disconnect();
+                };
+            }
+        }
+
+        // Initialize audio on first user interaction
+        document.addEventListener('click', () => {
+            initializeAudio();
+        }, { once: true });
 
         // Update plant color for better visibility
         const plantGeometry = new THREE.CylinderGeometry(0.1, 0.1, 4, 8);
@@ -453,6 +531,38 @@
         // Set up raycaster for better click detection
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
+        let isHoveringFish = false;
+
+        // Add mousemove event handler for cursor changes
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+
+            const intersects = raycaster.intersectObjects(scene.children, true);
+            let foundFish = false;
+
+            for (const intersect of intersects) {
+                const fishObject = fishes.find(fish => 
+                    fish.mesh === intersect.object || 
+                    fish.mesh.children.includes(intersect.object) ||
+                    (intersect.object.parent && fish.mesh === intersect.object.parent)
+                );
+                
+                if (fishObject) {
+                    foundFish = true;
+                    break;
+                }
+            }
+
+            if (foundFish !== isHoveringFish) {
+                isHoveringFish = foundFish;
+                document.body.classList.toggle('fish-hook-cursor', isHoveringFish);
+            }
+        }
+
+        document.querySelector('canvas').addEventListener('mousemove', onMouseMove, false);
 
         // Click event with improved handling
         function onClick(event) {
@@ -484,6 +594,8 @@
             }
         }
 
+        document.querySelector('canvas').addEventListener('click', onClick, false);
+
         // Improved popup function
         function showPopup(text) {
             const popup = document.getElementById('popup');
@@ -501,8 +613,6 @@
                 document.addEventListener('click', closePopup);
             }, 100);
         }
-
-        document.querySelector('canvas').addEventListener('click', onClick, false);
 
         // Animation loop
         function animate() {
@@ -531,6 +641,9 @@
             bubbles.forEach(bubble => {
                 bubble.position.y += bubble.userData.speed;
                 bubble.position.x += Math.sin(time + bubble.userData.offset) * 0.01;
+                
+                // Play bubble sound with stereo effect
+                playBubbleSound(bubble);
                 
                 if (bubble.position.y > 0) {
                     bubble.position.y = -15;
