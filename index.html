@@ -1,13 +1,591 @@
-<html>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Viacheslav Romanov</title>
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viacheslav Romanov: Resume Catching Game</title>
+    <style>
+        body { margin: 0; }
+        canvas { width: 100vw; height: 100vh; display: block; }
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            z-index: 1000;
+            min-width: 300px;
+            text-align: center;
+        }
+        #popup h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        #popup p {
+            color: #666;
+            line-height: 1.5;
+        }
+        .fish-label {
+            position: fixed;
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 5px 10px;
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 5px;
+            pointer-events: none;
+            text-align: center;
+            transform: translate(-50%, -50%);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
+        }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@v0.149.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@v0.149.0/examples/jsm/"
+            }
+        }
+    </script>
 </head>
+<body>
+    <canvas></canvas>
+    <div id="popup"></div>
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { Water } from 'three/addons/objects/Water.js';
 
-<body style="margin: 0px;">
-    <iframe id="theFrame" frameborder="0" marginwidth="0" marginheight="0" allowtransparency=yes src="http://35.209.5.163/" style="width:100%;height:100%;display:block;" frameborder="0">
-    </iframe>
+        // Define resume sections with titles
+        const resumeSections = [
+            { 
+                title: "Experience", 
+                content: `<h2>Professional Experience</h2>
+                    <p><strong>B2Broker - Liquidity & Technology Provider</strong></p>
+                    <p>Senior Software Engineer with extensive experience in web, desktop, and mobile development.</p>
+                    <p><strong>Entrepreneur</strong></p>
+                    <p>Independent software development and consulting.</p>`
+            },
+            { 
+                title: "Education", 
+                content: `<h2>Education</h2>
+                    <p><strong>South Ural State University (SUSU)</strong></p>
+                    <p>Bachelor's Degree in Computer Science</p>
+                    <p>2001 - 2007</p>`
+            },
+            { 
+                title: "Certifications", 
+                content: `<h2>Professional Certifications</h2>
+                    <ul>
+                        <li>AWS Certified Machine Learning – Specialty (Valid until Jan 2024)</li>
+                        <li>Amazon Web Services Solutions Architect - Professional (Valid until Dec 2023)</li>
+                        <li>AWS Certified Solutions Architect – Associate (Valid until Aug 2023)</li>
+                        <li>Flutter & Firebase: Build a Complete App for iOS & Android (Udemy)</li>
+                        <li>Flutter - Advanced Course (Udemy)</li>
+                        <li>Kubernetes in the Google Cloud (Qwiklabs)</li>
+                    </ul>`
+            }
+        ];
+
+        // Set up scene, camera, renderer
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x4a87b3);  // Lighter blue for underwater
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 5, 50);
+        camera.lookAt(0, 0, 0);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('canvas') });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2;  // Increased exposure
+
+        // Lighter fog for better visibility
+        scene.fog = new THREE.FogExp2(0x6699cc, 0.004);  // Lighter fog color and reduced density
+
+        // Adjust lights for underwater effect
+        const ambientLight = new THREE.AmbientLight(0x8cb3d9, 1.2);  // Brighter ambient light
+        scene.add(ambientLight);
+        
+        // Main sun directional light from above
+        const directionalLight = new THREE.DirectionalLight(0xffffdd, 4.0);  // Increased intensity
+        directionalLight.position.set(0, 10, 0);
+        directionalLight.target.position.set(0, -10, 0);
+        scene.add(directionalLight);
+        scene.add(directionalLight.target);
+
+        // Blue-tinted hemisphere light
+        const hemisphereLight = new THREE.HemisphereLight(0xffffcc, 0x4d88cc, 1.2);  // Lighter blue bottom color and increased intensity
+        scene.add(hemisphereLight);
+
+        // Add sun disk
+        const sunGeometry = new THREE.SphereGeometry(5, 32, 32);
+        const sunMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffffdd,
+            transparent: true,
+            opacity: 0.8,
+        });
+        const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+        sun.position.set(0, 40, -100);  // Position sun high in the sky
+        scene.add(sun);
+
+        // Add sun glow
+        const sunGlowGeometry = new THREE.SphereGeometry(7, 32, 32);
+        const sunGlowMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffffaa,
+            transparent: true,
+            opacity: 0.3,
+            side: THREE.BackSide
+        });
+        const sunGlow = new THREE.Mesh(sunGlowGeometry, sunGlowMaterial);
+        sun.add(sunGlow);
+
+        // Create texture loader
+        const textureLoader = new THREE.TextureLoader();
+        const waterNormals = textureLoader.load('https://threejs.org/examples/textures/water/Water_1_M_Normal.jpg');
+        waterNormals.wrapS = waterNormals.wrapT = THREE.RepeatWrapping;
+
+        // Create water surface with enhanced effects
+        const waterGeometry = new THREE.PlaneGeometry(1000, 1000, 128, 128);
+        const water = new Water(waterGeometry, {
+            textureWidth: 1024,
+            textureHeight: 1024,
+            waterNormals: waterNormals,
+            alpha: 0.6,
+            sunDirection: directionalLight.position.clone().normalize(),
+            sunColor: 0xffd2a3,  // Warmer sun color
+            waterColor: 0x2c6da3,  // More natural blue
+            distortionScale: 2.5,
+            fog: true
+        });
+        water.rotation.x = -Math.PI / 2;
+        water.position.y = 5;
+        scene.add(water);
+
+        // Add surface waves with more natural material
+        const surfaceGeometry = new THREE.PlaneGeometry(1000, 1000, 128, 128);
+        const surfaceMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x2c6da3,  // Match water color
+            roughness: 0.15,
+            metalness: 0.65,
+            transparent: true,
+            opacity: 0.45,
+            side: THREE.DoubleSide,
+            envMapIntensity: 1.2,
+            clearcoat: 0.8,
+            clearcoatRoughness: 0.3,
+            transmission: 0.5,
+            ior: 1.33  // Real water IOR
+        });
+        const surfaceMesh = new THREE.Mesh(surfaceGeometry, surfaceMaterial);
+        surfaceMesh.rotation.x = -Math.PI / 2;
+        surfaceMesh.position.y = 5.1;
+        scene.add(surfaceMesh);
+
+        // Update ground color and position
+        const groundGeometry = new THREE.PlaneGeometry(1000, 1000, 128, 128);
+        const sandTexture = textureLoader.load('https://threejs.org/examples/textures/terrain/grasslight-big.jpg');
+        sandTexture.wrapS = sandTexture.wrapT = THREE.RepeatWrapping;
+        sandTexture.repeat.set(50, 50);
+        
+        const groundMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0xd4b681,  // Sandy color
+            map: sandTexture,
+            roughness: 0.8,
+            metalness: 0.1,
+            bumpMap: sandTexture,
+            bumpScale: 0.2,
+            wireframe: false
+        });
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = -15;
+        scene.add(ground);
+
+        // Add rocks
+        const rockGeometry = new THREE.DodecahedronGeometry(1);
+        const rockMaterial = new THREE.MeshStandardMaterial({
+            color: 0x666666,
+            roughness: 0.8,
+            metalness: 0.2
+        });
+
+        const rocks = [];
+        for (let i = 0; i < 100; i++) {
+            const rock = new THREE.Mesh(rockGeometry, rockMaterial);
+            const scale = 0.5 + Math.random() * 2;
+            rock.scale.set(scale, scale * 0.7, scale);
+            rock.position.set(
+                Math.random() * 200 - 100,
+                -14.5,
+                Math.random() * 200 - 100
+            );
+            rock.rotation.set(
+                Math.random() * Math.PI,
+                Math.random() * Math.PI,
+                Math.random() * Math.PI
+            );
+            scene.add(rock);
+            rocks.push(rock);
+        }
+
+        // Enhanced seaweed
+        const seaweedGeometry = new THREE.CylinderGeometry(0.1, 0.05, 4, 8, 5, true);
+        const seaweedMaterial = new THREE.MeshPhongMaterial({ 
+            color: 0x115522,
+            transparent: true,
+            opacity: 0.9,
+            side: THREE.DoubleSide
+        });
+
+        const seaweeds = [];
+        for (let i = 0; i < 200; i++) {
+            const seaweedGroup = new THREE.Group();
+            const numSegments = 3 + Math.floor(Math.random() * 3);
+            
+            for (let j = 0; j < numSegments; j++) {
+                const segment = new THREE.Mesh(seaweedGeometry, seaweedMaterial);
+                segment.position.y = j * 3.5;
+                segment.userData = {
+                    originalY: j * 3.5,
+                    swayOffset: Math.random() * Math.PI * 2,
+                    swaySpeed: 0.5 + Math.random() * 0.5
+                };
+                seaweedGroup.add(segment);
+            }
+            
+            seaweedGroup.position.set(
+                Math.random() * 160 - 80,
+                -15,
+                Math.random() * 160 - 80
+            );
+            scene.add(seaweedGroup);
+            seaweeds.push(seaweedGroup);
+        }
+
+        // Add coral formations
+        const coralGeometry = new THREE.TorusKnotGeometry(0.5, 0.2, 64, 8);
+        const coralMaterial = new THREE.MeshPhongMaterial({
+            color: 0xff6b6b,
+            shininess: 100
+        });
+
+        const corals = [];
+        for (let i = 0; i < 50; i++) {
+            const coral = new THREE.Mesh(coralGeometry, coralMaterial);
+            const scale = 0.5 + Math.random() * 1.5;
+            coral.scale.set(scale, scale, scale);
+            coral.position.set(
+                Math.random() * 160 - 80,
+                -14,
+                Math.random() * 160 - 80
+            );
+            coral.rotation.set(
+                Math.random() * Math.PI,
+                Math.random() * Math.PI,
+                Math.random() * Math.PI
+            );
+            scene.add(coral);
+            corals.push(coral);
+        }
+
+        // Add sand ripples effect
+        const rippleGeometry = new THREE.PlaneGeometry(1000, 1000, 256, 256);
+        const rippleMaterial = new THREE.MeshPhongMaterial({
+            color: 0xc2b280,
+            transparent: true,
+            opacity: 0.5,
+            shininess: 10
+        });
+        const sandRipples = new THREE.Mesh(rippleGeometry, rippleMaterial);
+        sandRipples.rotation.x = -Math.PI / 2;
+        sandRipples.position.y = -14.8;
+        scene.add(sandRipples);
+
+        // Add bubbles
+        const bubbleGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+        const bubbleMaterial = new THREE.MeshPhongMaterial({
+            color: 0xaaccff,  // Light blue tint
+            transparent: true,
+            opacity: 0.3,
+            shininess: 100
+        });
+
+        const bubbles = [];
+        for (let i = 0; i < 50; i++) {  // Reduced number of bubbles
+            const bubble = new THREE.Mesh(bubbleGeometry, bubbleMaterial);
+            bubble.position.set(
+                Math.random() * 100 - 50,
+                Math.random() * -15 - 1,
+                Math.random() * 100 - 50
+            );
+            bubble.userData = {
+                speed: Math.random() * 0.02 + 0.01,
+                offset: Math.random() * Math.PI * 2
+            };
+            scene.add(bubble);
+            bubbles.push(bubble);
+        }
+
+        // Update plant color for better visibility
+        const plantGeometry = new THREE.CylinderGeometry(0.1, 0.1, 4, 8);
+        const plantMaterial = new THREE.MeshPhongMaterial({ color: 0x00cc66 });  // Brighter green
+        
+        for (let i = 0; i < 50; i++) {
+            const plant = new THREE.Mesh(plantGeometry, plantMaterial);
+            plant.position.set(
+                Math.random() * 80 - 40,
+                -15,  // At new ground level
+                Math.random() * 80 - 40
+            );
+            plant.rotation.x = Math.random() * 0.2 - 0.1;
+            plant.rotation.z = Math.random() * 0.2 - 0.1;
+            scene.add(plant);
+        }
+
+        // Update fish positions for better visibility
+        const fishPositions = [
+            { x: -25, y: -3, z: -20 },  // Experience fish
+            { x: 0, y: -5, z: -15 },    // Education fish
+            { x: 25, y: -7, z: -20 }    // Certifications fish
+        ];
+
+        // Array to hold fish objects
+        const fishes = [];
+
+        // Create labels container
+        const labelsContainer = document.createElement('div');
+        document.body.appendChild(labelsContainer);
+
+        // Fish class with label
+        class Fish {
+            constructor(mesh, section, index) {
+                this.mesh = mesh;
+                this.section = section.content;
+                this.title = section.title;
+                this.initialY = fishPositions[index].y;  // Store initial Y position
+                
+                // Create label
+                this.label = document.createElement('div');
+                this.label.className = 'fish-label';
+                this.label.textContent = this.title;
+                labelsContainer.appendChild(this.label);
+                
+                this.speed = Math.random() * 0.2 + 0.1;
+                this.direction = 1;
+                
+                // Add subtle up/down movement
+                this.verticalOffset = 0;
+                this.verticalSpeed = Math.random() * 0.02 - 0.01;
+            }
+
+            update() {
+                // Horizontal movement
+                this.mesh.position.x += this.speed * this.direction;
+                if (this.mesh.position.x > 30 || this.mesh.position.x < -30) {
+                    this.direction *= -1;
+                    this.mesh.rotation.y = this.direction > 0 ? Math.PI / 2 : -Math.PI / 2;
+                }
+
+                // Vertical movement (gentle up/down)
+                this.verticalOffset += this.verticalSpeed;
+                if (Math.abs(this.verticalOffset) > 2) {
+                    this.verticalSpeed *= -1;
+                }
+                this.mesh.position.y = this.initialY + this.verticalOffset;
+                
+                // Update label position
+                const vector = new THREE.Vector3();
+                vector.setFromMatrixPosition(this.mesh.matrixWorld);
+                vector.y += 5;  // Position label closer to fish
+                
+                const widthHalf = window.innerWidth / 2;
+                const heightHalf = window.innerHeight / 2;
+                
+                vector.project(camera);
+                
+                const x = (vector.x * widthHalf) + widthHalf;
+                const y = -(vector.y * heightHalf) + heightHalf;
+                
+                this.label.style.left = x + 'px';
+                this.label.style.top = y + 'px';
+            }
+
+            remove() {
+                if (this.label && this.label.parentNode) {
+                    this.label.parentNode.removeChild(this.label);
+                }
+            }
+        }
+
+        // Load fish model
+        const gltfLoader = new GLTFLoader();
+        gltfLoader.load(
+            'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/refs/heads/main/2.0/BarramundiFish/glTF/BarramundiFish.gltf',
+            (gltf) => {
+                console.log('Fish model loaded successfully');
+                const fishMesh = gltf.scene;
+                fishMesh.scale.set(8, 8, 8);
+                fishMesh.rotation.y = Math.PI / 2;
+                
+                resumeSections.forEach((section, index) => {
+                    const fishClone = fishMesh.clone();
+                    fishClone.position.set(fishPositions[index].x, fishPositions[index].y, fishPositions[index].z);
+                    scene.add(fishClone);
+                    console.log(`Fish ${index} added at position:`, fishPositions[index]);
+                    const fish = new Fish(fishClone, section, index);
+                    fishes.push(fish);
+                });
+            },
+            (xhr) => {
+                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+            },
+            (error) => {
+                console.error('An error happened loading the fish model:', error);
+                alert('Could not load the fish model. Please try refreshing the page.');
+            }
+        );
+
+        // Set up raycaster for better click detection
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        // Click event with improved handling
+        function onClick(event) {
+            event.preventDefault();
+            
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+
+            const intersects = raycaster.intersectObjects(scene.children, true);
+            console.log('Click detected, intersected objects:', intersects.length);
+
+            for (const intersect of intersects) {
+                const fishObject = fishes.find(fish => 
+                    fish.mesh === intersect.object || 
+                    fish.mesh.children.includes(intersect.object) ||
+                    (intersect.object.parent && fish.mesh === intersect.object.parent)
+                );
+                
+                if (fishObject) {
+                    console.log('Fish clicked!', fishObject);
+                    scene.remove(fishObject.mesh);
+                    fishObject.remove(); // Remove the label
+                    fishes.splice(fishes.indexOf(fishObject), 1);
+                    showPopup(fishObject.section);
+                    break;
+                }
+            }
+        }
+
+        // Improved popup function
+        function showPopup(text) {
+            const popup = document.getElementById('popup');
+            popup.innerHTML = text;
+            popup.style.display = 'block';
+            
+            const closePopup = (e) => {
+                if (e.target !== popup && !popup.contains(e.target)) {
+                    popup.style.display = 'none';
+                    document.removeEventListener('click', closePopup);
+                }
+            };
+            
+            setTimeout(() => {
+                document.addEventListener('click', closePopup);
+            }, 100);
+        }
+
+        document.querySelector('canvas').addEventListener('click', onClick, false);
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const time = performance.now() * 0.001;
+            water.material.uniforms['time'].value = time;
+
+            // Animate surface waves with more natural pattern
+            const vertices = surfaceMesh.geometry.attributes.position.array;
+            for (let i = 0; i < vertices.length; i += 3) {
+                const x = vertices[i];
+                const z = vertices[i + 2];
+                // Combine multiple wave patterns with different frequencies and amplitudes
+                vertices[i + 1] = 
+                    Math.sin(x * 0.03 + time * 0.7) * 0.3 +  // Long waves
+                    Math.sin(z * 0.04 + time * 0.6) * 0.3 +  // Cross waves
+                    Math.sin((x + z) * 0.03 + time * 0.8) * 0.2 +  // Diagonal waves
+                    Math.sin(Math.sqrt(x * x + z * z) * 0.04 + time) * 0.2 +  // Circular waves
+                    Math.sin(x * 0.08 + time * 1.2) * 0.1 +  // Small ripples
+                    Math.sin(z * 0.08 + time * 1.1) * 0.1;   // Cross ripples
+            }
+            surfaceMesh.geometry.attributes.position.needsUpdate = true;
+
+            // Animate bubbles
+            bubbles.forEach(bubble => {
+                bubble.position.y += bubble.userData.speed;
+                bubble.position.x += Math.sin(time + bubble.userData.offset) * 0.01;
+                
+                if (bubble.position.y > 0) {
+                    bubble.position.y = -15;
+                    bubble.position.x = Math.random() * 100 - 50;
+                    bubble.position.z = Math.random() * 100 - 50;
+                }
+            });
+
+            // Animate seaweed
+            seaweeds.forEach(seaweedGroup => {
+                seaweedGroup.children.forEach((segment, index) => {
+                    const swayAmount = (index + 1) * 0.1;
+                    const userData = segment.userData;
+                    
+                    segment.rotation.x = Math.sin(time * userData.swaySpeed + userData.swayOffset) * 0.1;
+                    segment.rotation.z = Math.cos(time * userData.swaySpeed + userData.swayOffset) * 0.1;
+                    
+                    // Add some vertical movement
+                    segment.position.y = userData.originalY + Math.sin(time * 0.5 + userData.swayOffset) * swayAmount;
+                });
+            });
+
+            // Animate sand ripples
+            const rippleVertices = sandRipples.geometry.attributes.position.array;
+            for (let i = 0; i < rippleVertices.length; i += 3) {
+                const x = rippleVertices[i];
+                const z = rippleVertices[i + 2];
+                rippleVertices[i + 1] = 
+                    Math.sin(x * 0.05 + time * 0.2) * 0.1 +
+                    Math.sin(z * 0.05 + time * 0.3) * 0.1;
+            }
+            sandRipples.geometry.attributes.position.needsUpdate = true;
+
+            // Animate sun glow
+            sunGlow.scale.setScalar(1 + Math.sin(time * 0.5) * 0.1);
+            sunGlowMaterial.opacity = 0.3 + Math.sin(time * 0.5) * 0.1;
+
+            // Animate corals with subtle movement
+            corals.forEach((coral, index) => {
+                coral.rotation.y = Math.sin(time * 0.3 + index) * 0.05;
+                coral.position.y = -14 + Math.sin(time * 0.5 + index) * 0.1;
+            });
+
+            fishes.forEach(fish => fish.update());
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Handle window resize
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        window.addEventListener('resize', onWindowResize, false);
+    </script>
 </body>
-
 </html>
