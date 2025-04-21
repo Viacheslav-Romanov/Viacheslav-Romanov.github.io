@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Viacheslav Romanov: Resume Catching Game</title>
     <style>
-        body { margin: 0; }
+        body { margin: 0; cursor: grabbing;}
         canvas { width: 100vw; height: 100vh; display: block; }
         #popup {
             display: none;
@@ -164,6 +164,7 @@
         import * as THREE from 'three';
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         import { Water } from 'three/addons/objects/Water.js';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
         // Define resume sections with titles
         const resumeSections = [
@@ -244,6 +245,17 @@
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 1.2;  // Increased exposure
 
+        // Add orbit controls
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // Add smooth damping effect
+        controls.dampingFactor = 0.05;
+        controls.screenSpacePanning = false;
+        controls.minDistance = 10;
+        controls.maxDistance = 100;
+        controls.maxPolarAngle = Math.PI / 2; // Prevent going below water surface
+        controls.minPolarAngle = 0; // Prevent going above water surface
+        controls.target.set(0, 0, 0);
+
         // Lighter fog for better visibility
         scene.fog = new THREE.FogExp2(0x6699cc, 0.004);  // Lighter fog color and reduced density
 
@@ -252,7 +264,7 @@
         scene.add(ambientLight);
         
         // Main sun directional light from above
-        const directionalLight = new THREE.DirectionalLight(0xffffdd, 4.0);  // Increased intensity
+        const directionalLight = new THREE.DirectionalLight(0xffff66, 4.0);  // Increased intensity, more yellow
         directionalLight.position.set(0, 10, 0);
         directionalLight.target.position.set(0, -10, 0);
         scene.add(directionalLight);
@@ -262,10 +274,10 @@
         const hemisphereLight = new THREE.HemisphereLight(0xffffcc, 0x4d88cc, 1.2);  // Lighter blue bottom color and increased intensity
         scene.add(hemisphereLight);
 
-        // Add sun disk
+        // Add sun disk - more yellow color
         const sunGeometry = new THREE.SphereGeometry(5, 32, 32);
         const sunMaterial = new THREE.MeshBasicMaterial({
-            color: 0xffffdd,
+            color: 0xffff00, // Bright yellow
             transparent: true,
             opacity: 0.8,
         });
@@ -273,12 +285,12 @@
         sun.position.set(0, 40, -100);  // Position sun high in the sky
         scene.add(sun);
 
-        // Add sun glow
+        // Add sun glow - more intense yellow
         const sunGlowGeometry = new THREE.SphereGeometry(7, 32, 32);
         const sunGlowMaterial = new THREE.MeshBasicMaterial({
-            color: 0xffffaa,
+            color: 0xffff22, // Stronger yellow glow
             transparent: true,
-            opacity: 0.3,
+            opacity: 0.5, // Increased opacity
             side: THREE.BackSide
         });
         const sunGlow = new THREE.Mesh(sunGlowGeometry, sunGlowMaterial);
@@ -305,7 +317,7 @@
             textureWidth: 1024,
             textureHeight: 1024,
             waterNormals: waterNormals,
-            alpha: 0.6,
+            alpha: 0.9,
             sunDirection: directionalLight.position.clone().normalize(),
             sunColor: 0xffd2a3,  // Warmer sun color
             waterColor: 0x2c6da3,  // More natural blue
@@ -1497,6 +1509,9 @@
             
             const time = performance.now() * 0.001;
             water.material.uniforms['time'].value = time;
+
+            // Update controls
+            controls.update();
 
             // Animate surface waves with more natural pattern
             const vertices = surfaceMesh.geometry.attributes.position.array;
