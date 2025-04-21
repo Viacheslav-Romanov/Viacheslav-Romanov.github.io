@@ -13,21 +13,120 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.2),
+                        inset 0 0 20px rgba(255, 255, 255, 0.2);
             z-index: 1000;
             min-width: 300px;
             text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            max-width: 80%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: float 3s ease-in-out infinite;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
         }
+
+        @keyframes float {
+            0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
+            50% { transform: translate(-50%, -50%) translateY(-10px); }
+        }
+
+        #popup::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, 
+                rgba(66, 211, 255, 0.3),
+                rgba(0, 149, 255, 0.3),
+                rgba(0, 255, 255, 0.3));
+            border-radius: 22px;
+            z-index: -1;
+            animation: borderGlow 3s linear infinite;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
         #popup h2 {
-            color: #333;
+            color: #fff;
             margin-top: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            font-size: 24px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
         }
+
         #popup p {
-            color: #666;
-            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            margin: 10px 0;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        #popup ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+
+        #popup li {
+            color: rgba(255, 255, 255, 0.9);
+            margin: 10px 0;
+            padding-left: 20px;
+            position: relative;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        #popup li::before {
+            content: '🐠';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+        }
+
+        #popup strong {
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        #popup::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Add a gradient fade effect for content overflow */
+        #popup::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: linear-gradient(to bottom, 
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.1) 100%);
+            pointer-events: none;
+            border-radius: 0 0 20px 20px;
+        }
+
+        /* Ensure content has proper spacing at the bottom */
+        #popup > *:last-child {
+            margin-bottom: 20px;
         }
         .fish-label {
             position: fixed;
@@ -93,6 +192,42 @@
                         <li>AWS Certified DevOps Engineer – Professional</li>
                         <li>AWS Certified Developer - Associate</li>
                         <li>Kubernetes in the Google Cloud (Qwiklabs)</li>
+                    </ul>`
+            },
+            {
+                title: "GitHub",
+                content: `<h2>GitHub Profile</h2>
+                    <p>Check out my projects and code repositories!</p>`,
+                url: "https://github.com/Viacheslav-Romanov"
+            },
+            {
+                title: "LinkedIn",
+                content: `<h2>LinkedIn Profile</h2>
+                    <p>Connect with me on LinkedIn!</p>`,
+                url: "https://www.linkedin.com/in/vyacheslavr"
+            },
+            {
+                title: "Skills",
+                content: `<h2>Technical Skills</h2>
+                    <ul>
+                        <li>AWS & Cloud Computing</li>
+                        <li>Machine Learning</li>
+                        <li>DevOps</li>
+                        <li>Flutter & Mobile Development</li>
+                        <li>Kubernetes</li>
+                        <li>Web Development</li>
+                        <li>Automated Testing</li>
+                        <li>Java</li>
+                        <li>Python</li>
+                        <li>C#</li>
+                        <li>C++</li>
+                        <li>C</li>
+                        <li>JavaScript</li>
+                        <li>TypeScript</li>
+                        <li>SQL</li>
+                        <li>Kotlin</li>
+                        <li>Swift</li>
+                        <li>PHP</li>                        
                     </ul>`
             }
         ];
@@ -429,7 +564,10 @@
         const fishPositions = [
             { x: -25, y: -3, z: -20 },  // Experience fish
             { x: 0, y: -5, z: -15 },    // Education fish
-            { x: 25, y: -7, z: -20 }    // Certifications fish
+            { x: 25, y: -7, z: -20 },   // Certifications fish
+            { x: 0, y: -9, z: -25 },    // GitHub fish
+            { x: -15, y: -8, z: -30 },  // LinkedIn fish
+            { x: 20, y: -6, z: -25 }    // Skills fish
         ];
 
         // Array to hold fish objects
@@ -445,6 +583,7 @@
                 this.mesh = mesh;
                 this.section = section.content;
                 this.title = section.title;
+                this.url = section.url || null;
                 this.initialY = fishPositions[index].y;  // Store initial Y position
                 
                 // Create label
@@ -500,8 +639,733 @@
             }
         }
 
-        // Load fish model
+        // No longer needed - using fish instead of crab
+        function createUnusedFunction() {
+            // More realistic colors for the mechanical crab sign
+            const primaryColor = 0xe61919; // Deep red (not too bright)
+            const goldColor = 0xd4af37; // More realistic gold
+            const blackColor = 0x111111; // Slightly off-black for more realism
+            const innerRedColor = 0xc41414; // Darker red for depth
+            
+            // Crab group to hold all parts
+            const crabGroup = new THREE.Group();
+            
+            // Create the main circular body (like a signboard)
+            // Use a slightly flattened cylinder for more realism
+            const bodyGeometry = new THREE.CylinderGeometry(8, 8, 1.8, 48);
+            // Rotate to make it face forward
+            bodyGeometry.rotateX(Math.PI / 2);
+            
+            // Create a more realistic material with slight variations
+            const bodyMaterial = new THREE.MeshStandardMaterial({ 
+                color: primaryColor,
+                roughness: 0.4,
+                metalness: 0.6,
+                flatShading: false
+            });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            crabGroup.add(body);
+            
+            // Add inner circle for depth and realism
+            const innerCircleGeometry = new THREE.CylinderGeometry(7, 7, 0.2, 48);
+            innerCircleGeometry.rotateX(Math.PI / 2);
+            const innerCircleMaterial = new THREE.MeshStandardMaterial({
+                color: innerRedColor,
+                roughness: 0.5,
+                metalness: 0.5
+            });
+            const innerCircle = new THREE.Mesh(innerCircleGeometry, innerCircleMaterial);
+            innerCircle.position.z = 1.0; // Slightly in front of main body
+            crabGroup.add(innerCircle);
+            
+            // Add gold rim around the circular body (more detailed)
+            const rimGeometry = new THREE.TorusGeometry(8.1, 0.5, 24, 100);
+            const rimMaterial = new THREE.MeshStandardMaterial({
+                color: goldColor,
+                roughness: 0.2, // Smoother
+                metalness: 0.9  // More metallic
+            });
+            const rim = new THREE.Mesh(rimGeometry, rimMaterial);
+            rim.rotation.x = Math.PI / 2;
+            crabGroup.add(rim);
+            
+            // Add secondary inner rim for detail
+            const innerRimGeometry = new THREE.TorusGeometry(7.2, 0.2, 16, 100);
+            const innerRimMaterial = new THREE.MeshStandardMaterial({
+                color: goldColor,
+                roughness: 0.2,
+                metalness: 0.9
+            });
+            const innerRim = new THREE.Mesh(innerRimGeometry, innerRimMaterial);
+            innerRim.rotation.x = Math.PI / 2;
+            innerRim.position.z = 0.9; // Just in front of the main body
+            crabGroup.add(innerRim);
+            
+            // Add realistic lighting effect (glow)
+            const glowGeometry = new THREE.CylinderGeometry(8.2, 8.2, 0.1, 48);
+            glowGeometry.rotateX(Math.PI / 2);
+            const glowMaterial = new THREE.MeshBasicMaterial({
+                color: 0xff9999,
+                transparent: true,
+                opacity: 0.3,
+                side: THREE.FrontSide
+            });
+            const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+            glow.position.z = 1.2;
+            crabGroup.add(glow);
+            
+            // Add face details to the front (more realistic eye design)
+            // Eyes (two black circles with reflections)
+            function createEye(x) {
+                const eyeGroup = new THREE.Group();
+                
+                // Main eye
+                const eyeGeometry = new THREE.CylinderGeometry(0.9, 0.9, 0.3, 32);
+                eyeGeometry.rotateX(Math.PI / 2);
+                const eyeMaterial = new THREE.MeshStandardMaterial({
+                    color: blackColor,
+                    roughness: 0.1,
+                    metalness: 0.3
+                });
+                const eye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+                eyeGroup.add(eye);
+                
+                // Add reflection highlight (small white dot)
+                const reflectionGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.1, 16);
+                reflectionGeometry.rotateX(Math.PI / 2);
+                const reflectionMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.7
+                });
+                const reflection = new THREE.Mesh(reflectionGeometry, reflectionMaterial);
+                reflection.position.set(0.3, 0.3, 0.2);
+                eyeGroup.add(reflection);
+                
+                // Position the whole eye group
+                eyeGroup.position.set(x, 3, 1.1);
+                return eyeGroup;
+            }
+            
+            const leftEye = createEye(-2.5);
+            const rightEye = createEye(2.5);
+            crabGroup.add(leftEye);
+            crabGroup.add(rightEye);
+            
+            // Add mouth/smile line
+            const mouthGeometry = new THREE.TorusGeometry(2, 0.2, 16, 16, Math.PI);
+            const mouthMaterial = new THREE.MeshStandardMaterial({
+                color: blackColor,
+                roughness: 0.5,
+                metalness: 0.2
+            });
+            const mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
+            mouth.rotation.x = Math.PI / 2;
+            mouth.rotation.y = Math.PI;
+            mouth.position.set(0, 0, 1.1);
+            crabGroup.add(mouth);
+            
+            // Create the moving mechanical claws (signature element of the sign)
+            function createMechanicalClaw(isLeft) {
+                const clawGroup = new THREE.Group();
+                
+                // Create mechanically connected joint with bolt
+                const jointGeometry = new THREE.CylinderGeometry(0.8, 0.8, 0.6, 32);
+                const jointMaterial = new THREE.MeshStandardMaterial({
+                    color: goldColor,
+                    roughness: 0.2,
+                    metalness: 0.9
+                });
+                const joint = new THREE.Mesh(jointGeometry, jointMaterial);
+                joint.rotation.x = Math.PI / 2;
+                clawGroup.add(joint);
+                
+                // Add bolt head for detail
+                const boltGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.2, 8);
+                const boltMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x999999, // Silver color
+                    roughness: 0.3,
+                    metalness: 0.9
+                });
+                const bolt = new THREE.Mesh(boltGeometry, boltMaterial);
+                bolt.rotation.x = Math.PI / 2;
+                bolt.position.z = 0.4; // Protrude slightly
+                joint.add(bolt);
+                
+                // Main arm (thick slightly curved shape)
+                const armGroup = new THREE.Group();
+                
+                // Use a curved arm for more realism (real sign has slight curve)
+                const armCurvePoints = [];
+                for (let i = 0; i <= 10; i++) {
+                    const x = i * 0.8;
+                    const y = Math.sin(i * 0.1) * 0.3; // Slight curve
+                    armCurvePoints.push(new THREE.Vector3(x, y, 0));
+                }
+                
+                const armCurve = new THREE.CatmullRomCurve3(armCurvePoints);
+                const armGeometry = new THREE.TubeGeometry(armCurve, 20, 0.8, 16, false);
+                const armMaterial = new THREE.MeshStandardMaterial({
+                    color: primaryColor,
+                    roughness: 0.3,
+                    metalness: 0.8
+                });
+                const arm = new THREE.Mesh(armGeometry, armMaterial);
+                armGroup.add(arm);
+                
+                // Add raised section along the arm with segment detail
+                for (let i = 0; i < 5; i++) {
+                    const segmentGeometry = new THREE.BoxGeometry(1.4, 0.3, 1.6);
+                    const segmentMaterial = new THREE.MeshStandardMaterial({
+                        color: goldColor,
+                        roughness: 0.2,
+                        metalness: 0.9
+                    });
+                    const segment = new THREE.Mesh(segmentGeometry, segmentMaterial);
+                    segment.position.set(i * 1.6 + 0.8, 0.4, 0);
+                    armGroup.add(segment);
+                    
+                    // Add rivets for mechanical detail
+                    for (let j = 0; j < 2; j++) {
+                        const rivetGeometry = new THREE.CylinderGeometry(0.12, 0.12, 0.2, 8);
+                        const rivetMaterial = new THREE.MeshStandardMaterial({
+                            color: 0x999999, // Silver
+                            roughness: 0.3,
+                            metalness: 0.9
+                        });
+                        const rivet = new THREE.Mesh(rivetGeometry, rivetMaterial);
+                        rivet.rotation.x = Math.PI / 2;
+                        rivet.position.set(i * 1.6 + 0.8, 0.4, (j * 1.2 - 0.6));
+                        rivet.position.z += 0.8; // Position on the raised section
+                        armGroup.add(rivet);
+                    }
+                }
+                
+                // Create the pincer (signature crab claw shape) - more detailed
+                const pincerGroup = new THREE.Group();
+                
+                // Main pincer body - more curved and realistic
+                const pincerShape = new THREE.Shape();
+                // Create a more curved, organic pincer shape
+                pincerShape.moveTo(0, 0);
+                pincerShape.lineTo(3, -0.2); // Slight dip
+                pincerShape.bezierCurveTo(4, -0.2, 5, 0.8, 5.5, 1); // Curved tip
+                pincerShape.bezierCurveTo(5, 1.2, 4, 2.2, 3, 2.2); // Top curve
+                pincerShape.lineTo(0, 2);
+                pincerShape.lineTo(0, 0);
+                
+                const extrudeSettings = {
+                    steps: 5, // More steps for smoother extrusion
+                    depth: 2,
+                    bevelEnabled: true,
+                    bevelThickness: 0.3,
+                    bevelSize: 0.3,
+                    bevelSegments: 5
+                };
+                
+                const pincerGeometry = new THREE.ExtrudeGeometry(pincerShape, extrudeSettings);
+                const pincerMaterial = new THREE.MeshStandardMaterial({
+                    color: primaryColor,
+                    roughness: 0.3,
+                    metalness: 0.8
+                });
+                
+                const pincer = new THREE.Mesh(pincerGeometry, pincerMaterial);
+                pincerGroup.add(pincer);
+                
+                // Add gold trim along the pincer edge
+                const edgePath = new THREE.CurvePath();
+                const point1 = new THREE.Vector3(0, 0, 1);
+                const point2 = new THREE.Vector3(3, -0.2, 1);
+                const point3 = new THREE.Vector3(5.5, 1, 1);
+                const point4 = new THREE.Vector3(3, 2.2, 1);
+                const point5 = new THREE.Vector3(0, 2, 1);
+                
+                const curve1 = new THREE.CatmullRomCurve3([point1, point2, point3]);
+                const curve2 = new THREE.CatmullRomCurve3([point3, point4, point5]);
+                
+                edgePath.add(curve1);
+                edgePath.add(curve2);
+                
+                const edgeGeometry = new THREE.TubeGeometry(edgePath, 50, 0.15, 8, false);
+                const edgeMaterial = new THREE.MeshStandardMaterial({
+                    color: goldColor,
+                    roughness: 0.2,
+                    metalness: 0.9
+                });
+                const edge = new THREE.Mesh(edgeGeometry, edgeMaterial);
+                pincerGroup.add(edge);
+                
+                // Add decorative pattern on the pincer
+                for (let i = 0; i < 3; i++) {
+                    const patternGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.1, 16);
+                    const patternMaterial = new THREE.MeshStandardMaterial({
+                        color: goldColor,
+                        roughness: 0.2,
+                        metalness: 0.9
+                    });
+                    const pattern = new THREE.Mesh(patternGeometry, patternMaterial);
+                    pattern.rotation.x = Math.PI / 2;
+                    pattern.position.set(1 + i * 1.2, 1, 1.2);
+                    pincerGroup.add(pattern);
+                }
+                
+                // Position the pincer at the end of the arm
+                pincerGroup.position.set(7, 0, -1);
+                armGroup.add(pincerGroup);
+                
+                // Add the arm to the claw group
+                clawGroup.add(armGroup);
+                
+                // Position and rotate the entire claw
+                if (isLeft) {
+                    clawGroup.position.set(-8.5, 0, 0);
+                    clawGroup.rotation.y = Math.PI / 6;
+                    armGroup.rotation.y = Math.PI / 2; // Align with joint
+                } else {
+                    clawGroup.position.set(8.5, 0, 0);
+                    clawGroup.rotation.y = -Math.PI / 6;
+                    armGroup.rotation.y = -Math.PI / 2; // Align with joint
+                    pincerGroup.rotation.y = Math.PI; // Flip the pincer
+                }
+                
+                // Add light effects for neon appearance
+                const glowGeometry = new THREE.TubeGeometry(armCurve, 20, 1, 16, false);
+                const glowMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xff8888,
+                    transparent: true,
+                    opacity: 0.2,
+                    side: THREE.FrontSide
+                });
+                const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                armGroup.add(glow);
+                
+                // Animation properties
+                clawGroup.userData = {
+                    originalRotation: clawGroup.rotation.y,
+                    animationPhase: isLeft ? 0 : Math.PI, // Opposite phases for alternating movement
+                };
+                
+                return clawGroup;
+            }
+            
+            const leftClaw = createMechanicalClaw(true);
+            const rightClaw = createMechanicalClaw(false);
+            crabGroup.add(leftClaw);
+            crabGroup.add(rightClaw);
+            
+            // Add legs (more realistic mechanical versions)
+            function createMechanicalLeg(isLeft, index) {
+                const legGroup = new THREE.Group();
+                
+                // Create the leg joint connection to body
+                const jointGeometry = new THREE.SphereGeometry(0.6, 16, 16);
+                const jointMaterial = new THREE.MeshStandardMaterial({
+                    color: goldColor,
+                    roughness: 0.2,
+                    metalness: 0.9
+                });
+                const joint = new THREE.Mesh(jointGeometry, jointMaterial);
+                legGroup.add(joint);
+                
+                // Create jointed leg with multiple segments (more realistic)
+                const createLegSegment = (length, thickness, angle) => {
+                    // Create segment group
+                    const segmentGroup = new THREE.Group();
+                    
+                    // Create curved leg segment (like real Kani Doraku sign)
+                    const segmentPoints = [];
+                    for (let i = 0; i <= 10; i++) {
+                        const x = i * (length/10);
+                        // Add slight curve
+                        const y = Math.sin(i * 0.3) * 0.2;
+                        segmentPoints.push(new THREE.Vector3(x, y, 0));
+                    }
+                    
+                    const segmentCurve = new THREE.CatmullRomCurve3(segmentPoints);
+                    const segmentGeometry = new THREE.TubeGeometry(segmentCurve, 20, thickness, 16, false);
+                    const segmentMaterial = new THREE.MeshStandardMaterial({
+                        color: primaryColor,
+                        roughness: 0.3,
+                        metalness: 0.8
+                    });
+                    const segment = new THREE.Mesh(segmentGeometry, segmentMaterial);
+                    segmentGroup.add(segment);
+                    
+                    // Add gold bands for decoration and detail (typical of the sign)
+                    const bandCount = Math.floor(length / 1.5);
+                    for (let i = 0; i <= bandCount; i++) {
+                        const bandGeometry = new THREE.TorusGeometry(thickness * 1.2, 0.1, 8, 16);
+                        const bandMaterial = new THREE.MeshStandardMaterial({
+                            color: goldColor,
+                            roughness: 0.2,
+                            metalness: 0.9
+                        });
+                        const band = new THREE.Mesh(bandGeometry, bandMaterial);
+                        band.position.x = i * (length / bandCount);
+                        band.rotation.y = Math.PI / 2;
+                        segmentGroup.add(band);
+                        
+                        // Add lighting effect (subtle glow)
+                        if (i % 2 === 0) { // Only some bands glow
+                            const glowGeometry = new THREE.TorusGeometry(thickness * 1.3, 0.1, 8, 16);
+                            const glowMaterial = new THREE.MeshBasicMaterial({
+                                color: 0xff8888,
+                                transparent: true,
+                                opacity: 0.3,
+                                side: THREE.FrontSide
+                            });
+                            const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                            glow.position.x = i * (length / bandCount);
+                            glow.rotation.y = Math.PI / 2;
+                            segmentGroup.add(glow);
+                        }
+                    }
+                    
+                    // Add more detail - shiny points to simulate LED lights
+                    for (let i = 0; i < bandCount; i++) {
+                        const ledGeometry = new THREE.SphereGeometry(0.08, 8, 8);
+                        const ledMaterial = new THREE.MeshBasicMaterial({
+                            color: 0xffffff,
+                            emissive: 0xffcccc,
+                            emissiveIntensity: 0.5
+                        });
+                        const led = new THREE.Mesh(ledGeometry, ledMaterial);
+                        led.position.x = (i + 0.5) * (length / bandCount);
+                        led.position.z = thickness;
+                        segmentGroup.add(led);
+                    }
+                    
+                    // Rotate the segment as needed
+                    segmentGroup.rotation.z = angle;
+                    
+                    return segmentGroup;
+                };
+                
+                // Create leg with multiple jointed segments (like real mechanical crab)
+                const segment1 = createLegSegment(4, 0.4, isLeft ? -Math.PI/4 : Math.PI/4);
+                legGroup.add(segment1);
+                
+                // Position the second segment at the end of the first
+                const segment2Length = 5;
+                const segment2 = createLegSegment(segment2Length, 0.3, isLeft ? -Math.PI/8 : Math.PI/8);
+                // Position at the end of the first segment
+                const endX = 4 * Math.cos(isLeft ? -Math.PI/4 : Math.PI/4);
+                const endY = 4 * Math.sin(isLeft ? -Math.PI/4 : Math.PI/4);
+                segment2.position.set(endX, endY, 0);
+                legGroup.add(segment2);
+                
+                // Add small joint spheres between segments
+                const innerJointGeometry = new THREE.SphereGeometry(0.45, 16, 16);
+                const innerJointMaterial = new THREE.MeshStandardMaterial({
+                    color: goldColor,
+                    roughness: 0.2,
+                    metalness: 0.9
+                });
+                const innerJoint = new THREE.Mesh(innerJointGeometry, innerJointMaterial);
+                innerJoint.position.set(endX, endY, 0);
+                legGroup.add(innerJoint);
+                
+                // Position the leg group relative to the body
+                const angle = Math.PI / 8 + (index * Math.PI / 12); // Angle from center
+                const radius = 8.2; // Slightly larger than body radius
+                const x = isLeft ? -radius * Math.cos(angle) : radius * Math.cos(angle);
+                const z = -radius * Math.sin(angle); // All legs point backward slightly
+                
+                legGroup.position.set(x, 0, z);
+                
+                // Angle downward (real sign has legs angled down)
+                legGroup.rotation.x = -Math.PI/6 - (index * Math.PI/24);
+                
+                // Animation properties
+                legGroup.userData = {
+                    originalRotation: legGroup.rotation.x,
+                    animationPhase: index * (Math.PI / 3), // Staggered phases
+                    animationSpeed: 0.4 + (index * 0.1) // Slightly different speeds
+                };
+                
+                return legGroup;
+            }
+            
+            // Create 3 legs on each side (the real sign has 6 legs)
+            for (let i = 0; i < 3; i++) {
+                const leftLeg = createMechanicalLeg(true, i);
+                const rightLeg = createMechanicalLeg(false, i);
+                crabGroup.add(leftLeg);
+                crabGroup.add(rightLeg);
+            }
+            
+            // Add text "SKILLS" plate to the body (like a restaurant sign)
+            // Instead of using FontLoader which requires additional imports,
+            // we'll create a stylized text plate with gold material
+            
+            // Create a plate for the text
+            const plateGeometry = new THREE.BoxGeometry(6, 1.5, 0.1);
+            const plateMaterial = new THREE.MeshStandardMaterial({
+                color: goldColor,
+                roughness: 0.3,
+                metalness: 0.8
+            });
+            const plate = new THREE.Mesh(plateGeometry, plateMaterial);
+            plate.position.set(0, 0, 1.1); // Just in front of the body
+            crabGroup.add(plate);
+            
+            // Create letter-like shapes on the plate
+            function createLetterShapes() {
+                const letterGroup = new THREE.Group();
+                
+                // S shape
+                const s1 = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.6, 0.2, 0.2),
+                    new THREE.MeshStandardMaterial({ color: primaryColor })
+                );
+                s1.position.set(-2.1, 0.3, 0);
+                
+                const s2 = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.2, 0.4, 0.2),
+                    new THREE.MeshStandardMaterial({ color: primaryColor })
+                );
+                s2.position.set(-2.4, 0.1, 0);
+                
+                const s3 = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.6, 0.2, 0.2),
+                    new THREE.MeshStandardMaterial({ color: primaryColor })
+                );
+                s3.position.set(-2.1, -0.1, 0);
+                
+                const s4 = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.2, 0.4, 0.2),
+                    new THREE.MeshStandardMaterial({ color: primaryColor })
+                );
+                s4.position.set(-1.8, -0.3, 0);
+                
+                const s5 = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.6, 0.2, 0.2),
+                    new THREE.MeshStandardMaterial({ color: primaryColor })
+                );
+                s5.position.set(-2.1, -0.5, 0);
+                
+                // K shape
+                const k1 = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.2, 1.0, 0.2),
+                    new THREE.MeshStandardMaterial({ color: primaryColor })
+                );
+                k1.position.set(-1.2, 0, 0);
+                
+                const k2 = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.2, 0.6, 0.2),
+                    new THREE.MeshStandardMaterial({ color: primaryColor })
+                );
+                k2.position.set(-0.9, 0, 0);
+                k2.rotation.z = Math.PI / 4;
+                
+                const k3 = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.2, 0.6, 0.2),
+                    new THREE.MeshStandardMaterial({ color: primaryColor })
+                );
+                k3.position.set(-0.9, -0.2, 0);
+                k3.rotation.z = -Math.PI / 4;
+                
+                // I shape
+                const i1 = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.2, 1.0, 0.2),
+                    new THREE.MeshStandardMaterial({ color: primaryColor })
+                );
+                i1.position.set(-0.3, 0, 0);
+                
+                // L shape
+                const l1 = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.2, 1.0, 0.2),
+                    new THREE.MeshStandardMaterial({ color: primaryColor })
+                );
+                l1.position.set(0.3, 0, 0);
+                
+                const l2 = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.4, 0.2, 0.2),
+                    new THREE.MeshStandardMaterial({ color: primaryColor })
+                );
+                l2.position.set(0.5, -0.4, 0);
+                
+                // L shape (second L)
+                const l3 = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.2, 1.0, 0.2),
+                    new THREE.MeshStandardMaterial({ color: primaryColor })
+                );
+                l3.position.set(0.9, 0, 0);
+                
+                const l4 = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.4, 0.2, 0.2),
+                    new THREE.MeshStandardMaterial({ color: primaryColor })
+                );
+                l4.position.set(1.1, -0.4, 0);
+                
+                // S shape (second S)
+                const s6 = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.6, 0.2, 0.2),
+                    new THREE.MeshStandardMaterial({ color: primaryColor })
+                );
+                s6.position.set(1.8, 0.3, 0);
+                
+                const s7 = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.2, 0.4, 0.2),
+                    new THREE.MeshStandardMaterial({ color: primaryColor })
+                );
+                s7.position.set(1.5, 0.1, 0);
+                
+                const s8 = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.6, 0.2, 0.2),
+                    new THREE.MeshStandardMaterial({ color: primaryColor })
+                );
+                s8.position.set(1.8, -0.1, 0);
+                
+                const s9 = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.2, 0.4, 0.2),
+                    new THREE.MeshStandardMaterial({ color: primaryColor })
+                );
+                s9.position.set(2.1, -0.3, 0);
+                
+                const s10 = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.6, 0.2, 0.2),
+                    new THREE.MeshStandardMaterial({ color: primaryColor })
+                );
+                s10.position.set(1.8, -0.5, 0);
+                
+                letterGroup.add(s1, s2, s3, s4, s5, k1, k2, k3, i1, l1, l2, l3, l4, s6, s7, s8, s9, s10);
+                return letterGroup;
+            }
+            
+            const letters = createLetterShapes();
+            letters.position.z = 0.15; // Slightly in front of the plate
+            plate.add(letters);
+            
+            // Add neon sign effect - blinking lights along the rim
+            const createNeonLights = () => {
+                const lightsGroup = new THREE.Group();
+                const lightCount = 24; // Number of lights around the rim
+                
+                for (let i = 0; i < lightCount; i++) {
+                    const angle = (i / lightCount) * Math.PI * 2;
+                    
+                    // Create a small bulb
+                    const bulbGeometry = new THREE.SphereGeometry(0.15, 8, 8);
+                    const bulbMaterial = new THREE.MeshBasicMaterial({
+                        color: 0xffffff,
+                        emissive: 0xffdddd,
+                        emissiveIntensity: 1.0
+                    });
+                    const bulb = new THREE.Mesh(bulbGeometry, bulbMaterial);
+                    
+                    // Position around the rim
+                    const radius = 8.3; // Just outside the gold rim
+                    bulb.position.set(
+                        Math.cos(angle) * radius,
+                        Math.sin(angle) * radius,
+                        0
+                    );
+                    
+                    // Store animation info
+                    bulb.userData = {
+                        phase: i / lightCount * Math.PI * 2, // Staggered phases
+                        blinkSpeed: 0.5 + Math.random() * 0.5 // Slightly randomized speeds
+                    };
+                    
+                    lightsGroup.add(bulb);
+                }
+                
+                return lightsGroup;
+            };
+            
+            // Add neon lights
+            const neonLights = createNeonLights();
+            crabGroup.add(neonLights);
+            
+            // Add enhanced animation method to the crab group
+            crabGroup.animate = (time) => {
+                // Animate the circular sign (slight pulsing like a real neon sign)
+                const signPulse = Math.sin(time * 0.5) * 0.04 + 1.0;
+                body.scale.set(signPulse, signPulse, 1);
+                
+                // Animate the neon lights with classic neon sign "chasing" effect
+                if (neonLights) {
+                    neonLights.children.forEach((bulb, index) => {
+                        // Create a chasing light effect by staggering the phases
+                        const phase = bulb.userData.phase + time * bulb.userData.blinkSpeed;
+                        
+                        // Classic wave pattern for chasing light effect
+                        // Makes some bulbs brighter than others in a wave pattern
+                        const brightness = 0.3 + Math.sin(phase) * 0.7;
+                        
+                        // Apply the brightness 
+                        bulb.material.emissiveIntensity = brightness;
+                        bulb.material.opacity = brightness;
+                        
+                        // Scale the bulb slightly based on brightness
+                        const scale = 0.8 + brightness * 0.4;
+                        bulb.scale.set(scale, scale, scale);
+                    });
+                }
+                
+                // Animate the claws with more realistic mechanical movement
+                [leftClaw, rightClaw].forEach(claw => {
+                    // Oscillate the claws up and down with slight jerky motion like mechanical sign
+                    const phase = claw.userData.animationPhase + time * 0.5;
+                    
+                    // Add small random jitter for mechanical feel
+                    const jitter = Math.sin(time * 8) * 0.01;
+                    
+                    // Main claw movement (more pronounced)
+                    const amplitude = Math.PI / 10; // 18 degrees
+                    claw.rotation.y = claw.userData.originalRotation + Math.sin(phase) * amplitude + jitter;
+                    
+                    // Also bob slightly up and down
+                    claw.position.y = Math.sin(phase) * 0.3 + jitter * 2;
+                });
+                
+                // Animate the legs with proper mechanical movement
+                crabGroup.children.forEach(child => {
+                    if (child.userData && child.userData.animationPhase !== undefined) {
+                        // Only animate legs (not claws or other parts)
+                        if (child !== leftClaw && child !== rightClaw) { 
+                            // Apply gentle movement to legs with mechanical feel
+                            const phase = child.userData.animationPhase + time * (child.userData.animationSpeed || 0.5);
+                            
+                            // Add small random jitter for mechanical feel
+                            const jitter = Math.sin(time * 10 + child.userData.animationPhase) * 0.005;
+                            
+                            // Move legs with different amplitudes for X and Z rotation
+                            // This gives a more realistic movement like the real sign
+                            const amplitudeX = Math.PI / 24; // Subtle movement
+                            child.rotation.x = child.userData.originalRotation + Math.sin(phase) * amplitudeX + jitter;
+                            
+                            // Small twist rotation for more complex movement
+                            const amplitudeZ = Math.PI / 36; // Even more subtle
+                            child.rotation.z += Math.sin(phase * 1.3) * amplitudeZ * 0.1; // Accumulate small changes
+                        }
+                    }
+                });
+                
+                // Animate the eyes (slight blinking)
+                const eyeBlinkPhase = Math.sin(time * 0.1) * 0.5 + 0.5; // 0-1 range
+                if (eyeBlinkPhase < 0.1) { // Blink occasionally
+                    // Squeeze eyes slightly to simulate blinking
+                    leftEye.scale.y = rightEye.scale.y = 0.2 + eyeBlinkPhase * 8;
+                } else {
+                    leftEye.scale.y = rightEye.scale.y = 1.0;
+                }
+                
+                // Animate the glow effect
+                if (glow) {
+                    glow.material.opacity = 0.2 + Math.sin(time * 0.7) * 0.1;
+                }
+            };
+            
+            return crabGroup;
+        }
+        
+        // Load fish and crab models
         const gltfLoader = new GLTFLoader();
+        
+        // Load fish model
         gltfLoader.load(
             'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/refs/heads/main/2.0/BarramundiFish/glTF/BarramundiFish.gltf',
             (gltf) => {
@@ -510,7 +1374,10 @@
                 fishMesh.scale.set(8, 8, 8);
                 fishMesh.rotation.y = Math.PI / 2;
                 
-                resumeSections.forEach((section, index) => {
+                // Get fish sections only (not the crab)
+                const fishSections = resumeSections.filter(section => !section.isCrab);
+                
+                fishSections.forEach((section, index) => {
                     const fishClone = fishMesh.clone();
                     fishClone.position.set(fishPositions[index].x, fishPositions[index].y, fishPositions[index].z);
                     scene.add(fishClone);
@@ -520,13 +1387,15 @@
                 });
             },
             (xhr) => {
-                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                console.log('Fish model ' + (xhr.loaded / xhr.total * 100) + '% loaded');
             },
             (error) => {
                 console.error('An error happened loading the fish model:', error);
                 alert('Could not load the fish model. Please try refreshing the page.');
             }
         );
+        
+        // All skills are now represented by a fish, no additional code needed here
 
         // Set up raycaster for better click detection
         const raycaster = new THREE.Raycaster();
@@ -585,10 +1454,17 @@
                 
                 if (fishObject) {
                     console.log('Fish clicked!', fishObject);
-                    scene.remove(fishObject.mesh);
-                    fishObject.remove(); // Remove the label
-                    fishes.splice(fishes.indexOf(fishObject), 1);
-                    showPopup(fishObject.section);
+                    
+                    // If fish has URL, open it
+                    if (fishObject.url) {
+                        window.open(fishObject.url, '_blank');
+                    } else {
+                        // Otherwise show popup as usual
+                        scene.remove(fishObject.mesh);
+                        fishObject.remove(); // Remove the label
+                        fishes.splice(fishes.indexOf(fishObject), 1);
+                        showPopup(fishObject.section);
+                    }
                     break;
                 }
             }
