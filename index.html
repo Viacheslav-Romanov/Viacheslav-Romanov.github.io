@@ -299,13 +299,8 @@
         // Create texture loader
         const textureLoader = new THREE.TextureLoader();
         const cubeTextureLoader = new THREE.CubeTextureLoader();
+        cubeTextureLoader.mapping = THREE.CubeRefractionMapping;
         const envMap = cubeTextureLoader.load([
-            'https://threejs.org/examples/textures/cube/Park3Med/px.jpg',
-            'https://threejs.org/examples/textures/cube/Park3Med/nx.jpg',
-            'https://threejs.org/examples/textures/cube/Park3Med/py.jpg',
-            'https://threejs.org/examples/textures/cube/Park3Med/ny.jpg',
-            'https://threejs.org/examples/textures/cube/Park3Med/pz.jpg',
-            'https://threejs.org/examples/textures/cube/Park3Med/nz.jpg'
         ]);
 
         const waterNormals = textureLoader.load('https://threejs.org/examples/textures/water/Water_1_M_Normal.jpg');
@@ -471,7 +466,7 @@
         // Add bubbles with refraction
         const bubbleGeometry = new THREE.SphereGeometry(0.1, 32, 32);
         const bubbleMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0xffffff,
+            color: 0xccddff,
             transparent: true,
             opacity: 0.3,
             metalness: 0.1,
@@ -482,8 +477,10 @@
             envMapIntensity: 1.0,
             clearcoat: 1.0,
             clearcoatRoughness: 0.1,
+            refractionRatio: 0.985,
             ior: 1.33  // Water's index of refraction
         });
+        // const bubbleMaterial = new THREE.MeshPhongMaterial( { color: 0xccddff, envMap: envMap, refractionRatio: 0.985 } );
 
         // Create audio context and stereo panner
         let audioContext;
